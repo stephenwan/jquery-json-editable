@@ -1,0 +1,11 @@
+require.config({
+  baseUrl: 'scripts/lib/jquery',
+  paths: {
+    jquery: 'jquery-1.11.1.min'
+  }
+});
+
+
+require(["helper/util"], function(util) {
+  
+})
