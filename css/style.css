@@ -1,0 +1,80 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Aug 26, 2014, 10:28:14 AM
+    Author     : stephenwan
+*/
+
+.json-delimiter button {
+    width: 40px;
+    margin-left: 0px;
+    border: none;
+    color: inherit;
+    background: none;
+    box-shadow: none;
+}
+.json-delimiter .btn .caret{
+    margin-left: 10px;
+}
+.json-delimiter:last-of-type .btn .caret{
+    display: none;
+}
+/*.json-delimiter:first-of-type button:after {
+    content: "\25BD";
+    padding-left: 10px;
+    font-size: 2px;
+}
+*/
+.json-delimiter:last-of-type button:after {
+    content: ",";
+    padding-left: 8px;
+}
+.json-delimiter:hover ~ .json-value-row,
+.json-delimiter:hover ~ .json-delimiter,
+.json-delimiter:hover ~ .json-value-row-ctl {
+    background-color: #e0e0e0;
+}
+.json-delimiter:last-of-type button:hover {
+    background-color: inherit; 
+}
+.json-value-row {
+/*    border-left-style: solid;
+    border-left-color: green;
+    border-width: 1px;*/
+    margin: 0px 2px;
+    padding: 3px;
+}
+.json-value-row > div:first-child,
+.json-value-row-ctl > div:first-child{
+    margin-left:20px;
+}
+.json-value-row:first-child {
+/*    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: green;
+    border-top-left-radius: 5px;*/
+}
+.json-value-row-ctl {
+/*    border-left-style: solid;
+    border-left-color: green;
+    border-bottom-style: solid;
+    border-bottom-color: green;
+    border-width: 1px;
+    border-bottom-left-radius: 5px;*/
+    padding: 3px;
+    margin: 0px 2px ;
+}
+button.add {
+    background:none!important;
+    border:none; 
+    padding:0!important;
+    
+    /*optional*/
+    font-family:arial,sans-serif; /*input has OS specific font-family*/
+    color:#069;
+    text-decoration:underline;
+    cursor:pointer;
+}
