@@ -19,36 +19,36 @@ and open the template in the editor.
 .json-delimiter .btn .caret{
     margin-left: 10px;
 }
-.json-delimiter:last-of-type .btn .caret{
-    display: none;
-}
+
 /*.json-delimiter:first-of-type button:after {
     content: "\25BD";
     padding-left: 10px;
     font-size: 2px;
 }
 */
-.json-delimiter:last-of-type button:after {
-    content: ",";
-    padding-left: 8px;
+.json-delimiter:last-of-type span {
+    margin-left: 12px;
 }
+.json-delimiter:hover button,
 .json-delimiter:hover ~ .json-value-row,
 .json-delimiter:hover ~ .json-delimiter,
 .json-delimiter:hover ~ .json-value-row-ctl {
     background-color: #e0e0e0;
 }
-.json-delimiter:last-of-type button:hover {
-    background-color: inherit; 
+.json-delimiter:last-of-type:hover button,
+.json-delimiter:last-of-type .btn-default:hover,
+.json-delimiter:last-of-type .btn-default:focus {
+    background-color: inherit !important; 
 }
 .json-value-row {
 /*    border-left-style: solid;
     border-left-color: green;
     border-width: 1px;*/
-    margin: 0px 2px;
+    margin: 0px;
     padding: 3px;
 }
 .json-value-row > div:first-child,
-.json-value-row-ctl > div:first-child{
+.json-value-row-ctl > div:first-child {
     margin-left:20px;
 }
 .json-value-row:first-child {
@@ -65,16 +65,24 @@ and open the template in the editor.
     border-width: 1px;
     border-bottom-left-radius: 5px;*/
     padding: 3px;
-    margin: 0px 2px ;
+    margin: 0px;
 }
-button.add {
+button.record-add {
     background:none!important;
     border:none; 
-    padding:0!important;
-    
-    /*optional*/
-    font-family:arial,sans-serif; /*input has OS specific font-family*/
+    padding:0!important;    
+    font-family:arial,sans-serif;
     color:#069;
     text-decoration:underline;
     cursor:pointer;
 }
+span.record-del {
+    top: 0px;
+    background-color: inherit;
+    border: none;
+}
+.glyphicon-alert {
+    color: red;
+}
+
+
