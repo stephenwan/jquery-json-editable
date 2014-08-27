@@ -16,7 +16,7 @@
         render_ARRAY : function(values, options) {
             var template =
                     '<div class="row json-value-row" data-mode="ARRAY">' +             
-                    '<div class="col-sm-12 json-array-value json-value-composite">:CONTENT</div>' +
+                    '<div class="col-xs-12 json-array-value json-value-composite">:CONTENT</div>' +
                     '</div>';                                                          
             if ($.isArray(values)) {
                 var outputHtml = '';
@@ -34,8 +34,8 @@
         render_HASH : function(values, options) {
             var template =
                     '<div class="row json-value-row" data-mode="HASH">' +                   
-                    '<div class="col-sm-5 json-hash-key">:CONTENT_KEY</div>' +
-                    '<div class="col-sm-7 json-hash-value json-value-composite">:CONTENT_VAL</div>' +
+                    '<div class="col-xs-5 json-hash-key">:CONTENT_KEY</div>' +
+                    '<div class="col-xs-7 json-hash-value json-value-composite">:CONTENT_VAL</div>' +
                     '</div>';
             if ($.isPlainObject(values)) {
                 var outputHtml = '';
@@ -59,7 +59,7 @@
             var template;
             if (options.hasOwnProperty('composite') && options.composite) {
                 template =
-                    '<div class="col-sm-12 input-group">' + 
+                    '<div class="col-xs-12 input-group">' + 
                     this.button_del.render(options['deletable']) +  
                     '<div class="input-group-btn">' +
                     '<span class="btn btn-default dropdown-toggle record-switch" data-toggle="dropdown">' +
@@ -72,7 +72,7 @@
                     '</div>';
             } else {
                 template = 
-                    '<div class="col-sm-12 input-group">' +
+                    '<div class="col-xs-12 input-group">' +
                      this.button_del.render(options['deletable']) +  
                     '<span class="input-group-addon">' + 
                     (options.hasOwnProperty('tag')?options.tag:'-') +
@@ -150,7 +150,7 @@
             render: function(mode) {
                 var text = mode.toLowerCase();
                 return  '<div class="row json-value-row-ctl">' +
-                        '<div class="col-sm-10"><button type="button" class="btn record-add" data-mode="' + mode + '">Add to '+ text +'</button></div>' +
+                        '<div class="col-xs-10"><button type="button" class="btn record-add" data-mode="' + mode + '">Add to '+ text +'</button></div>' +
                         '</div>';
             },
             after_render: function($scope, $target, mode, utilities) {
@@ -240,7 +240,7 @@
 
     $.fn.editableJsonInput = function(){
         var $input = $(this);
-       //$input.addClass('hidden');
+        $input.attr('readonly', 'readonly');
         var jsonValue = new JsonValue($input.val());
         $input.after('<div class="json-value-composite">' +jsonValue.render() +'</div>');
         $scope = $input.next('.json-value-composite');       
@@ -250,8 +250,5 @@
            $input.val(JSON.stringify(utilities.eval_composite($scope))) ;
            return false;
         });
-    };  
-    
-     $('#test1').editableJsonInput();
-     $('#test2').editableJsonInput();
+    };      
 })(jQuery);
