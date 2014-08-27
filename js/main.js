@@ -8,8 +8,11 @@ require.config({
 });
 
 
-requirejs(['jquery', 'bootstrap', 'jquery-json'],
-function($, bootstrap, jkv) {
-//  $('.jkv').kvJsonInput();
+requirejs(['jquery', 'bootstrap', 'jquery-json', 'app/index'],
+function($, bootstrap, jj) {
     
-})
+    $(function() {
+        console.log('page ready');
+       
+    }) ;             
+});

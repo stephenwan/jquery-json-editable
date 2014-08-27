@@ -8,66 +8,50 @@ and open the template in the editor.
     Author     : stephenwan
 */
 
+.json-delimiter {
+    padding-left: 25px;
+}
 .json-delimiter button {
-    width: 40px;
+    width: 50px;
     margin-left: 0px;
+    padding-left: 0px;
     border: none;
     color: inherit;
     background: none;
     box-shadow: none;
 }
-.json-delimiter .btn .caret{
+.json-value-composite {
+    padding-right: 0px;
+}
+.json-value-composite .btn .caret{
     margin-left: 10px;
 }
-
-/*.json-delimiter:first-of-type button:after {
-    content: "\25BD";
-    padding-left: 10px;
-    font-size: 2px;
+.json-value-composite span.dropdown-toggle {
+    border-radius: 0px;
+    background-color: inherit;
+    color: inherit;
+    background-position: 0;
 }
-*/
 .json-delimiter:last-of-type span {
     margin-left: 12px;
 }
-.json-delimiter:hover button,
-.json-delimiter:hover ~ .json-value-row,
-.json-delimiter:hover ~ .json-delimiter,
-.json-delimiter:hover ~ .json-value-row-ctl {
-    background-color: #e0e0e0;
-}
-.json-delimiter:last-of-type:hover button,
-.json-delimiter:last-of-type .btn-default:hover,
-.json-delimiter:last-of-type .btn-default:focus {
-    background-color: inherit !important; 
-}
-.json-value-row {
-/*    border-left-style: solid;
-    border-left-color: green;
-    border-width: 1px;*/
-    margin: 0px;
-    padding: 3px;
-}
-.json-value-row > div:first-child,
-.json-value-row-ctl > div:first-child {
-    margin-left:20px;
-}
-.json-value-row:first-child {
-/*    border-top-style: solid;
-    border-top-width: 1px;
-    border-top-color: green;
-    border-top-left-radius: 5px;*/
-}
+.json-value-row,
 .json-value-row-ctl {
-/*    border-left-style: solid;
-    border-left-color: green;
-    border-bottom-style: solid;
-    border-bottom-color: green;
-    border-width: 1px;
-    border-bottom-left-radius: 5px;*/
-    padding: 3px;
     margin: 0px;
 }
-button.record-add {
+.json-value-row-ctl > div:first-child {
+    padding: 10px 50px;
+}
+.json-value-row .json-array-value,
+.json-value-row .json-hash-key {
+    padding: 0px;
+    padding-left: 20px;
+}
+.json-value-row:hover > .json-hash-key > .input-group > .btn.record-del,
+.json-value-row:hover > .json-array-value > .input-group > .btn.record-del {
+    visibility: visible;
+}
+.json-value-row-ctl button.record-add {
     background:none!important;
     border:none; 
     padding:0!important;    
@@ -76,13 +60,12 @@ button.record-add {
     text-decoration:underline;
     cursor:pointer;
 }
-span.record-del {
+.json-value-row span.record-del {
     top: 0px;
     background-color: inherit;
     border: none;
-}
-.glyphicon-alert {
     color: red;
 }
+
 
 
