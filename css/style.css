@@ -11,7 +11,7 @@ and open the template in the editor.
 .json-delimiter {
     padding-left: 25px;
 }
-.json-delimiter button {
+.json-delimiter .btn {
     width: 50px;
     margin-left: 0px;
     padding-left: 0px;

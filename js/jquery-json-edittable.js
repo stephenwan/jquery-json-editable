@@ -1,19 +1,70 @@
 ;(function($) {
-    var JsonValue = function(value, options) {
+    
+    var default_parameters = {
+        tag_array_value : 'a',
+        tag_hash_key : 'k',
+        tag_hash_value : 'v',
+        tag_scalar : 'scalar'        
+    };
+
+    var start_log = false;
+
+    var JsonValue = function(value, options, parameters) {
+        this.options(options);
+        this.parameters(parameters);
         this.decoded = JSON.parse(value);
-        this.mode = this.categorizeValue(this.decoded);
-        this.options = $.extend({}, options);
-    };    
-    var utilities = {
-        empty : function(mode) {
-            if (mode === 'ARRAY')
-                return [];
-            else if (mode === 'HASH')
-                return {};
-            else 
-                return '';
+        this.mode = this.categorizeValue(this.decoded);      
+    };
+    
+    JsonValue.prototype = {
+        options: function() {
+            if (arguments.length === 0) {
+                return this._options;
+            } else {
+                this._options = $.extend({composite: true, deletable: true}, this._option, arguments[0]);
+                return this;
+            }            
         },
-        render_ARRAY : function(values, options) {
+        parameters: function() {
+            if (arguments.length === 0) {
+                return this._parameters;
+            } else {
+                if (start_log) console.log(arguments[0]);
+                this._parameters = $.extend(default_parameters, this._parameters, arguments[0]);
+                if (start_log) console.log(this._parameters);
+                return this;
+            }            
+        },
+        categorizeValue : function(value) {
+            return $.isArray(value)?'ARRAY':($.isPlainObject(value)?'HASH':'SCALAR');
+        },
+        render: function() {            
+            return utilities['render_' + this.mode](this.unpack());
+        },        
+        unpack: function() {
+            if (this.mode === 'ARRAY') {
+                return this.decoded.reduce(function(previous, current, index, array) {                   
+                    previous.push( new JsonValue(JSON.stringify(current), {deletable: true}, this.parameters));
+                    return previous;
+                }, []);
+            } else if (this.mode === 'HASH') {
+                var decoded = this.decoded;
+                return Object.keys(decoded).reduce(function(previous, current, index, array) {                    
+                    previous[current] = new JsonValue(JSON.stringify(decoded[current]), {deletable: false}, this.parameters);
+                    return previous;
+                }, {});
+            } else {
+                return this;
+            }
+        }           
+    };
+    
+    var utilities = {
+        empty_value : function(mode) {
+            var value = (mode === 'ARRAY')?'[]':(mode=== 'HASH'?'{}':'""');
+            return new JsonValue(value);
+        },
+        render_ARRAY : function(values) {           
             var template =
                     '<div class="row json-value-row" data-mode="ARRAY">' +             
                     '<div class="col-xs-12 json-array-value json-value-composite">:CONTENT</div>' +
@@ -22,16 +73,21 @@
                 var outputHtml = '';
                 for (var i=0; i < values.length; i++) {
                     var value = values[i];                
-                    value.options = $.extend(value.options, {tag: 'a', deletable: true, composite: true});
-                    outputHtml += template.replace(/:CONTENT/, value.render());
+                    outputHtml += template.replace(/:CONTENT/, value.parameters({tag_scalar: default_parameters.tag_array_value}).render());
                 }
+
                 outputHtml += this.button_add.render('ARRAY');                   
-                return this.render_json_delimiter('ARRAY', 'left') + outputHtml + this.render_json_delimiter('ARRAY', 'right', options.appendSeparator);
-            } else {               
-                return template.replace(/:CONTENT/, this.render_SCALAR('', {tag: 'a', deletable: true, composite: true}));
+                return this.render_json_delimiter('ARRAY', 'left') +
+                       outputHtml +
+                       this.render_json_delimiter('ARRAY', 'right');
+            } else {
+                var value = this.empty_value('SCALAR')
+                            .options({deletable: true})
+                            .parameters({'tag_scalar': default_parameters.tag_array_value });
+                return template.replace(/:CONTENT/, this.render_SCALAR(value));
             }
         },
-        render_HASH : function(values, options) {
+        render_HASH : function(values) {
             var template =
                     '<div class="row json-value-row" data-mode="HASH">' +                   
                     '<div class="col-xs-5 json-hash-key">:CONTENT_KEY</div>' +
@@ -41,103 +97,116 @@
                 var outputHtml = '';
                 for (var k in values) {
                     var v = values[k];
-                    v.options = $.extend(v.options, {tag: 'v', composite: true});
                     outputHtml += template
-                                  .replace(/:CONTENT_KEY/, this.render_SCALAR(k, {tag: 'k', deletable:true}) )
-                                  .replace(/:CONTENT_VAL/, v.render());
+                                  .replace(/:CONTENT_KEY/, this.render_SCALAR(k, {tag_scalar: default_parameters.tag_hash_key}))
+                                  .replace(/:CONTENT_VAL/, v.parameters({tag_scalar: default_parameters.tag_hash_value}).render());
                 }
                 outputHtml += this.button_add.render('HASH');                    
-                return this.render_json_delimiter('HASH', 'left') + outputHtml + this.render_json_delimiter('HASH', 'right', options.appendSeparator);
+                return this.render_json_delimiter('HASH', 'left') +
+                       outputHtml +
+                       this.render_json_delimiter('HASH', 'right');
             } else {
+                var k = this.empty_value('SCALAR')
+                        .options({composite: false, deletable: true})
+                        .parameters({tag_scalar: default_parameters.tag_hash_key});
+                console.log(values);
+                console.log(k);
+                start_log = true;
+                k.parameters({tag_scalar: default_parameters.tag_hash_key});
+                console.log(k);
+                start_log = false;
+                var v = this.empty_value('SCALAR')
+                        .options({deletable: false})
+                        .parameters({tag_scalar: default_parameters.tag_hash_value});
                 return template
-                       .replace(/:CONTENT_KEY/, this.render_SCALAR("", {tag: 'k', deletable:true}))
-                       .replace(/:CONTENT_VAL/, this.render_SCALAR("", {tag: 'v', composite: true}));
-                
+                       .replace(/:CONTENT_KEY/, this.render_SCALAR(k))
+                       .replace(/:CONTENT_VAL/, this.render_SCALAR(v));                
             }
         },
-        render_SCALAR : function(value, options) {
+        render_SCALAR : function(value, parameters) {
+            var options;
+            if (value instanceof JsonValue) {
+                options = value.options();
+                parameters = value.parameters(parameters).parameters();
+                value = value.decoded;
+            } else {
+                options = {composite: false, deletable: true};
+            }
             var template;
-            if (options.hasOwnProperty('composite') && options.composite) {
+            if (options.composite) {
+             
                 template =
-                    '<div class="col-xs-12 input-group">' + 
-                    this.button_del.render(options['deletable']) +  
-                    '<div class="input-group-btn">' +
-                    '<span class="btn btn-default dropdown-toggle record-switch" data-toggle="dropdown">' +
-                    (options.hasOwnProperty('tag')?options.tag:'-') + 
-                    '<span class="caret"></span></span>' +
-                    '<ul class="dropdown-menu" role="menu">' +
-                    '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="HASH">{...}</a></li>' +        
-                    '</ul></div>' +                                       
-                    '<input type="text" class="form-control" value=":CONTENT">' +                    
-                    '</div>';
+                  '<div class="col-xs-12 input-group">' + 
+                  (options['deletable']?this.button_del.render():'') +
+                  this.button_switch.render('SCALAR', parameters.tag_scalar) +
+                  '<input type="text" class="form-control" value=":CONTENT">' +                    
+                  '</div>';
             } else {
                 template = 
-                    '<div class="col-xs-12 input-group">' +
-                     this.button_del.render(options['deletable']) +  
-                    '<span class="input-group-addon">' + 
-                    (options.hasOwnProperty('tag')?options.tag:'-') +
-                    '</span>' +    
-                    '<input type="text" class="form-control" value=":CONTENT">' + 
-                    '</div>';
+                  '<div class="col-xs-12 input-group">' +
+                  (options['deletable']?this.button_del.render():'') + 
+                  '<span class="input-group-addon">' + parameters.tag_scalar + '</span>' +    
+                  '<input type="text" class="form-control" value=":CONTENT">' + 
+                  '</div>';
             }            
             return template.replace(/:CONTENT/, value);
         },
         render_json_delimiter : function(mode, position) {
-            var symbol, dropdown;
-            var template_left = '<div class="input-group-btn json-delimiter" data-mode="' + mode + '">' +
-                    '<button type="button" class="btn btn-default dropdown-toggle record-switch" data-toggle="dropdown">:CONTENT<span class="caret"></span></button>' +
-                    '<ul class="dropdown-menu" role="menu">:DROPDOWN</ul>' +
-                    '</div>';
-            var template_right = '<div class="json-delimiter" data-mode="' + mode + '"><span>:CONTENT</span></div>';
-            var template = (position === 'left')?template_left:template_right; 
-            
-            if (mode === 'ARRAY') {
-                symbol = (position === 'left')?'[':']' ;
-                dropdown = '<li><a href="#" data-mode="HASH">{...}</a></li>' + '<li><a href="#" data-mode="SCALAR">...</a></li>';
-            } else if (mode === 'HASH') {
-                symbol = (position === 'left')?'{':'}' ;
-                dropdown = '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="SCALAR">...</a></li>';
+            var symbol;
+            if (position === 'right') {
+                symbol = (mode === 'ARRAY')?']':(mode=== 'HASH'?'}':'');
+                return '<div class="json-delimiter" data-mode="' + mode + '"><span>'+ symbol +'</span></div>';
             } else {
-                symbol = 'scalar';
-                dropdown = '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="HASH">{...}</a></li>';
-            }
-            if (symbol) {
-                return template.replace(/:CONTENT/, symbol).replace(/:DROPDOWN/, dropdown);
-            } else {
-                return '';
-            }
+                symbol = (mode === 'ARRAY')?'[':(mode=== 'HASH'?'{':'');
+                return this.button_switch.render(mode, symbol, {btn_class: 'json-delimiter' } );
+            }            
         },
         button_switch: {
-            render: function(mode) {
+            render: function(mode, content, options) {
+                options = typeof options !== 'undefined'? options : {};
+                var template =
+                  '<div class="input-group-btn '+ (options.hasOwnProperty('btn_class')?options['btn_class']:'' ) +'" data-mode="' + mode +'">' +
+                  '<span class="btn btn-default dropdown-toggle record-switch" data-toggle="dropdown">' +
+                  ':CONTENT' + 
+                  '<span class="caret"></span></span>' +
+                  '<ul class="dropdown-menu" role="menu">' +
+                  ':DROPDOWN' +
+                  '</ul></div>';
                 
+                var dropdown;
+                if (mode === 'ARRAY') {
+                    dropdown = '<li><a href="#" data-mode="HASH">{...}</a></li>' + '<li><a href="#" data-mode="SCALAR">...</a></li>';
+                } else if (mode === 'HASH') {
+                    dropdown = '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="SCALAR">...</a></li>'; 
+                } else {
+                    dropdown = '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="HASH">{...}</a></li>';
+                }
+                return template.replace(/:CONTENT/, content).replace(/:DROPDOWN/, dropdown);              
             },
             after_render: function($scope, $target, utilities) {
                 $target.next('.dropdown-menu').find('a').off('click.record-switch');
                 $target.next('.dropdown-menu').find('a').on('click.record-switch', function() {   
                     var mode = $(this).data('mode');
                     var $composite = $target.closest('.json-value-composite');
-                    var tag, deletable;
+                    var value = utilities.empty_value(mode);
+                                                            
                     if ($composite.hasClass('json-array-value')) {
-                        tag = 'a';
-                        deletable = true;
+                        value.parameters({tag_scalar: default_parameters.tag_array_value})
+                             .options({deletable: true});                        
                     }
                     else if ($composite.hasClass('json-hash-value')) {
-                        tag = 'v';
-                        deletable = false;
-                    } else {
-                        deletable = false;
-                        tag = 'scalar';
-                    }                 
-                    var html = utilities['render_' + mode](utilities.empty(mode), {tag: tag, deletable: deletable, composite: true});                                
-                    $target.closest('.json-value-composite').html(html); 
+                        value.parameters({tag_scalar: default_parameters.tag_hash_value})
+                             .options({deletable: false});                                                
+                    } 
+                    
+                    $composite.html(value.render()); 
                     utilities.updated($scope);
                 });
             }
         },        
         button_del: {
-            render: function(deletable) {
-                return deletable?
-                '<span class="input-group-addon btn record-del glyphicon glyphicon-minus-sign invisible"></span>':'';
+            render: function() {
+                return '<span class="input-group-addon btn record-del glyphicon glyphicon-minus-sign invisible"></span>';
             },
             after_render: function($scope, $target) { 
                 $target.off('click.record-del');
@@ -150,7 +219,8 @@
             render: function(mode) {
                 var text = mode.toLowerCase();
                 return  '<div class="row json-value-row-ctl">' +
-                        '<div class="col-xs-10"><button type="button" class="btn record-add" data-mode="' + mode + '">Add to '+ text +'</button></div>' +
+                        '<div class="col-xs-10"><button type="button" class="btn record-add" data-mode="' + mode + '">Add to '+
+                        text +'</button></div>' +
                         '</div>';
             },
             after_render: function($scope, $target, mode, utilities) {
@@ -171,12 +241,7 @@
             });
             $scope.find('.btn.record-switch').each(function() {             
                 utilities.button_switch.after_render($scope, $(this), utilities); 
-            });
-            $scope.find('.json-delimiter:first-of-type').mousemove(function(){
-                $(this).closest('.json-value-composite').addClass('json-value-composite-focused');
-            }).mouseleave(function() {
-                $(this).closest('.json-value-composite').removeClass('json-value-composite-focused');
-            });          
+            });                   
         },
         eval_composite: function($target) {
             var utility = this;
@@ -206,45 +271,15 @@
                 return $target.find('input').val();            
             }     
         }
-    };    
-    JsonValue.prototype = {
-        categorizeValue : function(value) {
-            if ($.isArray(value)) {
-                return 'ARRAY';
-            } else if ($.isPlainObject(value)) {
-                return 'HASH';
-            } else {
-                return 'SCALAR';
-            }    
-        },
-        render: function() {
-            return utilities['render_' + this.mode](this.unpack(), this.options);
-        },        
-        unpack: function() {
-            if (this.mode === 'ARRAY') {
-                return this.decoded.reduce(function(previous, current, index, array) {                   
-                    previous.push( new JsonValue(JSON.stringify(current)));
-                    return previous;
-                }, []);
-            } else if (this.mode === 'HASH') {
-                var decoded = this.decoded;
-                return Object.keys(decoded).reduce(function(previous, current, index, array) {                    
-                    previous[current] = new JsonValue(JSON.stringify(decoded[current]));
-                    return previous;
-                }, {});
-            } else {
-                return this.decoded;
-            }
-        }           
     };
 
-    $.fn.editableJsonInput = function(){
+    $.fn.editableJsonInput = function(parameters){
+        default_parameters = $.extend(default_parameters, parameters);
         var $input = $(this);
         $input.attr('readonly', 'readonly');
         var jsonValue = new JsonValue($input.val());
         $input.after('<div class="json-value-composite">' +jsonValue.render() +'</div>');
-        $scope = $input.next('.json-value-composite');       
-        utilities.updated($scope);
+        utilities.updated($input.next('.json-value-composite'));
         $input.parents('form').submit(function() {          
            var $scope = $input.next('.json-value-composite');
            $input.val(JSON.stringify(utilities.eval_composite($scope))) ;
