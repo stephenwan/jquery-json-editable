@@ -7,8 +7,6 @@
         tag_scalar : 'scalar'        
     };
 
-    var start_log = false;
-
     var JsonValue = function(value, options, parameters) {
         this.options(options);
         this.parameters(parameters);
@@ -28,10 +26,8 @@
         parameters: function() {
             if (arguments.length === 0) {
                 return this._parameters;
-            } else {
-                if (start_log) console.log(arguments[0]);
-                this._parameters = $.extend(default_parameters, this._parameters, arguments[0]);
-                if (start_log) console.log(this._parameters);
+            } else {                               
+                this._parameters = $.extend({}, default_parameters, this._parameters, arguments[0]);                
                 return this;
             }            
         },
@@ -108,13 +104,8 @@
             } else {
                 var k = this.empty_value('SCALAR')
                         .options({composite: false, deletable: true})
-                        .parameters({tag_scalar: default_parameters.tag_hash_key});
-                console.log(values);
-                console.log(k);
-                start_log = true;
+                        .parameters({tag_scalar: default_parameters.tag_hash_key});  
                 k.parameters({tag_scalar: default_parameters.tag_hash_key});
-                console.log(k);
-                start_log = false;
                 var v = this.empty_value('SCALAR')
                         .options({deletable: false})
                         .parameters({tag_scalar: default_parameters.tag_hash_value});
@@ -274,7 +265,7 @@
     };
 
     $.fn.editableJsonInput = function(parameters){
-        default_parameters = $.extend(default_parameters, parameters);
+        $.extend(default_parameters, parameters);
         var $input = $(this);
         $input.attr('readonly', 'readonly');
         var jsonValue = new JsonValue($input.val());
