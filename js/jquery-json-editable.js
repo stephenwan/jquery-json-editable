@@ -38,15 +38,16 @@
             return utilities['render_' + this.mode](this.unpack());
         },        
         unpack: function() {
+            var parameters = this.parameters();
             if (this.mode === 'ARRAY') {
                 return this.decoded.reduce(function(previous, current, index, array) {                   
-                    previous.push( new JsonValue(JSON.stringify(current), {deletable: true}, this.parameters()));
+                    previous.push( new JsonValue(JSON.stringify(current), {deletable: true}, parameters);
                     return previous;
                 }, []);
             } else if (this.mode === 'HASH') {
                 var decoded = this.decoded;
                 return Object.keys(decoded).reduce(function(previous, current, index, array) {                    
-                    previous[current] = new JsonValue(JSON.stringify(decoded[current]), {deletable: false}, this.parameters());
+                    previous[current] = new JsonValue(JSON.stringify(decoded[current]), {deletable: false}, parameters;
                     return previous;
                 }, {});
             } else {
