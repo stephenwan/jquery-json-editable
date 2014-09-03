@@ -1,6 +1,6 @@
 # jQuery Json-input editor Plugin
 
-This is a not so light-weight jQuery plugin that enables web-based editing of Json values. 
+This is a not so light-weight jQuery plugin that enables html-form-based editing of Json values. 
 The plugin transforms the original text input field that contains a Json string into a group of
 editable text input fields which obey and simulate the original Json value structure. 
 
