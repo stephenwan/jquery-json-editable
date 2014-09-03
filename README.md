@@ -41,10 +41,9 @@ $('input[name="configDataJson"']).editableJsonInput();
  
 ## Demo
 
-[jsfilddle](http://jsfiddle.net/7m0x29m3/)
+* [demo1(jsfilddle)](http://jsfiddle.net/7m0x29m3/)
 
-
-[http://mojolite-wecook.rhcloud.com/json](http://mojolite-wecook.rhcloud.com/json)
+* [demo2](http://mojolite-wecook.rhcloud.com/json)
  
 
 
@@ -57,13 +56,13 @@ $('input[name="configDataJson"']).editableJsonInput();
 <th>description </th>
 </tr>
 <tr>
-<td>cancel_form_submit</td><td>false</td><td>Click form button will update the input value but will not submit form. Used for debugging and demo. </td>
+<td>cancel_form_submit</td><td>false</td><td>The form-submit button will trigger input value update instead of form submit. Used for debugging and demo. </td>
 </tr>
 <tr>
 <td>hide_original_input</td><td>false</td><td>Hide the original input field</td>
 </tr>
 <tr>
-<td>lock_original_input</td><td>false</td><td>Change the original input field to read-only </td>
+<td>lock_original_input</td><td>false</td><td>Turn the original input field to read-only </td>
 </tr>
 <tr>
 <td>tag_hash_key</td><td>'hash key'</td><td>Input field place-holder for hash-key</td>
@@ -85,12 +84,11 @@ $('input[name="configDataJson"']).editableJsonInput();
 
 * Version 1.9.1
 
-Other version should works as well but have not been tested.
+Other versions should work as well but have not been tested.
 
 
-## Acknowledgement 
+## Acknowledgement
 
-This project is inspired by the [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input) plugin.
-I also want to thank its author for many helpful discussions and technical assistances.
-
+This project was inspired by [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input).
+I would also like to thank its author for many helpful discussions.
 
