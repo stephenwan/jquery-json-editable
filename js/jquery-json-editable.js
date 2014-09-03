@@ -126,6 +126,7 @@
         },
         render_SCALAR : function(value, parameters) {
             var options;
+            
             if (value instanceof JsonValue) {
                 options = value.options();
                 parameters = value.parameters(parameters).parameters();
@@ -162,32 +163,41 @@
                 
                 var dropdown;
                 if (mode === 'ARRAY') {
-                    dropdown = '<li><a href="#" data-mode="HASH">{...}</a></li>' + '<li><a href="#" data-mode="SCALAR">...</a></li>';
+                    dropdown = '<li><a href="javascript:void(0)" data-mode="HASH">{...}</a></li>' + '<li><a href="javascript:void(0)" data-mode="SCALAR">...</a></li>';
                 } else if (mode === 'HASH') {
-                    dropdown = '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="SCALAR">...</a></li>'; 
+                    dropdown = '<li><a href="javascript:void(0)" data-mode="ARRAY">[...]</a></li>' + '<li><a href="javascript:void(0)" data-mode="SCALAR">...</a></li>'; 
                 } else {
-                    dropdown = '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="HASH">{...}</a></li>';
+                    dropdown = '<li><a href="javascript:void(0)" data-mode="ARRAY">[...]</a></li>' + '<li><a href="javascript:void(0)" data-mode="HASH">{...}</a></li>';
                 }
                 return template.replace(/:DROPDOWN/, dropdown);              
             },
             after_render: function($scope, $target, utilities) {
                 $target.children('.json-switch-dropdown').find('a').off('click.record-switch');
-                $target.children('.json-switch-dropdown').find('a').on('click.record-switch', function() {   
+                $target.children('.json-switch-dropdown').find('a').on('click.record-switch', function() { 
                     var mode = $(this).data('mode');
                     var $composite;
                     if ($target.hasClass('json-delimiter-value')) {
                         $composite = $target.closest('.json-value-composite');
+                    } else if ($target.get(0) === $scope.get(0)) {
+                        $composite = $target;
                     } else {
                         $composite = $target.children('.json-value-composite');
+                    }                                       
+                    var value = utilities.empty_value(mode);                                                                                        
+                    if ($scope.get(0) === $composite.get(0)) {
+                        $input = $scope.prev('input[type="text"]');
+                        $input.next('.json-value-composite').remove();
+                        $input.after((mode==='SCALAR'?'<div class="json-value-composite json-switch">' +value.render() +'</div>':value.render()));
+                        $scope = $input.next('.json-value-composite');
+                    } else {
+                        if ($composite.closest('td').hasClass('json-array-value')) {
+                            value.parameters({tag_scalar: default_parameters.tag_array_value});
+                        }
+                        else if ($composite.closest('td').hasClass('json-hash-value')) {
+                            value.parameters({tag_scalar: default_parameters.tag_hash_value});
+                        }  
+                        $composite.closest('td').html(value.render()); 
                     }
-                    var value = utilities.empty_value(mode);                                                            
-                    if ($composite.closest('td').hasClass('json-array-value')) {
-                        value.parameters({tag_scalar: default_parameters.tag_array_value});
-                    }
-                    else if ($composite.closest('td').hasClass('json-hash-value')) {
-                        value.parameters({tag_scalar: default_parameters.tag_hash_value});
-                    }                     
-                    $composite.closest('td').html(value.render()); 
                     utilities.updated($scope);
                 });
             }
@@ -228,10 +238,14 @@
             });
             $scope.find('.record-del').each(function() {
                 utilities.button_del.after_render($scope, $(this)); 
-            });
-            $scope.find('.json-switch').each(function() {             
-                utilities.button_switch.after_render($scope, $(this), utilities); 
-            });                   
+            }); 
+            if ($scope.hasClass('json-switch')) {
+                utilities.button_switch.after_render($scope, $scope, utilities); 
+            } else {
+                $scope.find('.json-switch').each(function() {    
+                    utilities.button_switch.after_render($scope, $(this), utilities); 
+                });     
+            }
         },
         eval_composite: function($target) {
             var utility = this;
@@ -254,7 +268,7 @@
                 });                
                 return return_value;
             } else {                       
-                return ($target.val()=== '""')?'':$target.val();            
+                return $target.hasClass('json-switch')?$target.children('input.json-value-composite').val():$target.val();            
             }     
         }
     };
