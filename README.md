@@ -1,10 +1,10 @@
-# jQuery Json-input editor Plugin
+# jQuery JSON-input editor Plugin
 
-This is a not so light-weight jQuery plugin that enables html-form-based editing of Json values. 
-The plugin transforms a text input field that contains a Json string into a group of
-editable text input fields which simulate the original Json value structure. 
+This is a not so light-weight jQuery plugin that enables html-form-based editing of JSON values. 
+The plugin transforms a text input field that contains a JSON string into a group of
+editable text input fields which simulate the original JSON value structure. 
 
-For a simpler implementation that is capable of editing key-value-like Json value with no nesting, 
+For a simpler implementation that is capable of editing key-value-like JSON value with no nesting, 
 please refer to [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input) instead.
 
 
@@ -35,16 +35,11 @@ Finally enable json-edit for a normal text input field
 
 $('input[name="configDataJson"']).editableJsonInput();
 
-
 ```
 
- 
 ## Demo
 
-* [jsfiddle](http://jsfiddle.net/7m0x29m3/2/)
-
-
- 
+* [jsfiddle](http://jsfiddle.net/7m0x29m3/3/)
 
 
 ## Configuration
@@ -85,6 +80,12 @@ $('input[name="configDataJson"']).editableJsonInput();
 * Version 1.9.1
 
 Other versions should work as well but have not been tested.
+
+## Known Issue
+
+* Since every scalar value is treated as a string, other valid JSON data types such as 
+integer and boolean will be automatically converted into string and the original
+type information will be lost.
 
 
 ## Acknowledgement
