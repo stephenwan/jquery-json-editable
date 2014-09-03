@@ -41,9 +41,9 @@ $('input[name="configDataJson"']).editableJsonInput();
  
 ## Demo
 
-* [demo1(jsfilddle)](http://jsfiddle.net/7m0x29m3/)
+* (JsFiddle)(http://jsfiddle.net/7m0x29m3/)
 
-* [demo2](http://mojolite-wecook.rhcloud.com/json)
+
  
 
 
