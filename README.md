@@ -1,10 +1,11 @@
 # jQuery Json-input editor Plugin
 
-A not so light-weight jQuery plugin that enables web-based editing of Json-value and feeding the result straight into the text input field 
-inside a HTML form. 
+This is a not so light-weight jQuery plugin that enables web-based editing of Json values. 
+The plugin transforms the original text input field that contains a Json string into a group of
+editable text input fields which obey and simulate the original Json value structure. 
 
-For a simpler implementation that is capable to edit plain key-value type Json-value, please use  
-[jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input) instead.
+For a simpler implementation that is capable of editing key-value-like Json value with no nesting, 
+please refer to [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input) instead.
 
 
 ## Usage
@@ -32,7 +33,7 @@ Finally enable json-edit for a normal text input field
 
 ``` javascript
 
-$('input[name="configDataJson"]).editableJsonInput();
+$('input[name="configDataJson"']).editableJsonInput();
 
 
 ```
@@ -41,6 +42,8 @@ $('input[name="configDataJson"]).editableJsonInput();
 ## Demo
 
 [jsfilddle](http://jsfiddle.net/7m0x29m3/)
+
+
 [http://mojolite-wecook.rhcloud.com/json](http://mojolite-wecook.rhcloud.com/json)
  
 
@@ -48,11 +51,11 @@ $('input[name="configDataJson"]).editableJsonInput();
 ## Configuration
 
 <table>
-<th>
-<td>parameter</td>
-<td>default </td>
-<td>description </td>
-</th>
+<tr>
+<th>parameter</th>
+<th>default </th>
+<th>description </th>
+</tr>
 <tr>
 <td>cancel_form_submit</td><td>false</td><td>Click form button will update the input value but will not submit form. Used for debugging and demo. </td>
 </tr>
