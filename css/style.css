@@ -22,11 +22,9 @@ table.json-value-composite tr {
 table.json-value-composite td:first-child {
     text-align: center;
 }
-
 .json-value-composite input[type="text"] {
     width: 120px; 
 }
-
 .json-delimiter-value {
     width: 30px;
     height: 25px;
@@ -82,4 +80,7 @@ ul.json-switch-dropdown > li:hover {
     font-family:arial,sans-serif;
     color:#069;
     text-decoration:underline;
+}
+.json-hash-key:after {
+    content: ":";
 }

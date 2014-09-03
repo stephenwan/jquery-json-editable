@@ -1,10 +1,13 @@
 ;(function($) {
     
     var default_parameters = {
-        tag_array_value : 'a',
-        tag_hash_key : 'k',
-        tag_hash_value : 'v',
-        tag_scalar : 'scalar'        
+        tag_array_value : 'array value',
+        tag_hash_key : 'hash key',
+        tag_hash_value : 'hash value',
+        tag_scalar : 'scalar',
+        cancel_form_submit : false,
+        hide_original_input : false,
+        lock_original_input : false
     };
 
     var JsonValue = function(value, options, parameters) {
@@ -19,7 +22,7 @@
             if (arguments.length === 0) {
                 return this._options;
             } else {
-                this._options = $.extend({composite: true, deletable: true}, this._option, arguments[0]);
+                this._options = $.extend({composite: true}, this._option, arguments[0]);
                 return this;
             }            
         },
@@ -41,13 +44,13 @@
             var parameters = this.parameters();
             if (this.mode === 'ARRAY') {
                 return this.decoded.reduce(function(previous, current, index, array) {                   
-                    previous.push( new JsonValue(JSON.stringify(current), {deletable: true}, parameters));
+                    previous.push( new JsonValue(JSON.stringify(current), {}, parameters));
                     return previous;
                 }, []);
             } else if (this.mode === 'HASH') {
                 var decoded = this.decoded;
                 return Object.keys(decoded).reduce(function(previous, current, index, array) {                    
-                    previous[current] = new JsonValue(JSON.stringify(decoded[current]), {deletable: false}, parameters);
+                    previous[current] = new JsonValue(JSON.stringify(decoded[current]), {}, parameters);
                     return previous;
                 }, {});
             } else {
@@ -130,7 +133,9 @@
             } else {
                 options = {composite: false};
             }
-            var template = '<input type="text" value=":CONTENT_VAL" placeholder=":CONTENT_PH">' +
+            var template = '<input type="text" ' +
+                           (options.composite?' class="json-value-composite" ':'') +
+                           ' value=":CONTENT_VAL" placeholder=":CONTENT_PH">' +
               (options.composite?this.button_switch.render('SCALAR'):'');                
             return template.replace(/:CONTENT_VAL/, value).replace(/:CONTENT_PH/, parameters.tag_scalar);
         },
@@ -169,16 +174,20 @@
                 $target.children('.json-switch-dropdown').find('a').off('click.record-switch');
                 $target.children('.json-switch-dropdown').find('a').on('click.record-switch', function() {   
                     var mode = $(this).data('mode');
-                    var $composite = $target.closest('.json-value-composite');
-                    var value = utilities.empty_value(mode);
-                                                            
-                    if ($composite.hasClass('json-array-value')) {
+                    var $composite;
+                    if ($target.hasClass('json-delimiter-value')) {
+                        $composite = $target.closest('.json-value-composite');
+                    } else {
+                        $composite = $target.children('.json-value-composite');
+                    }
+                    var value = utilities.empty_value(mode);                                                            
+                    if ($composite.closest('td').hasClass('json-array-value')) {
                         value.parameters({tag_scalar: default_parameters.tag_array_value});
                     }
-                    else if ($composite.hasClass('json-hash-value')) {
+                    else if ($composite.closest('td').hasClass('json-hash-value')) {
                         value.parameters({tag_scalar: default_parameters.tag_hash_value});
                     }                     
-                    $composite.html(value.render()); 
+                    $composite.closest('td').html(value.render()); 
                     utilities.updated($scope);
                 });
             }
@@ -226,45 +235,54 @@
         },
         eval_composite: function($target) {
             var utility = this;
-            var delimiters = $target.children('.json-delimiter');            
+            var delimiters = $target.children().children('.json-delimiter-row').children('.json-delimiter-value');            
             var mode = null;
             if (delimiters.length !== 0) {                              
                 mode = delimiters.data('mode');
             }
             if (mode === 'ARRAY') {
                 var return_value = [];
-                $target.children('.json-value-row').each(function() {
-                    $(this).children('.json-value-composite').each(function() {
+                $target.children('tbody').children('.json-value-row').each(function() {
+                    $(this).children('.json-array-value').children('.json-value-composite').each(function() {                     
                         return_value.push(utility.eval_composite($(this)));
                     });
                 });
                 return return_value;
             } else if (mode === 'HASH') {
                 var return_value = {};
-                $target.children('.json-value-row').each(function() {
-                    var key = $(this).children('.json-hash-key').find('input').val();                    
+                $target.children('tbody').children('.json-value-row').each(function() {                   
+                    var key = $(this).children('.json-hash-key').find('input').val();   
                     if (key !== '') {
-                        return_value[key] = utility.eval_composite($(this).children('.json-hash-value'));
+                        return_value[key] = utility.eval_composite($(this).children('.json-hash-value').children('.json-value-composite'));
                     }                    
-                });
+                });                
                 return return_value;
-            } else {       
-                return $target.find('input').val();            
+            } else {                       
+                return $target.val();            
             }     
         }
     };
 
     $.fn.editableJsonInput = function(parameters){
-        $.extend(default_parameters, parameters);
+        $.extend(default_parameters, parameters);        
+        var bind_input = function($input) {
+            $input.next('.json-value-composite').remove();
+            var jsonValue = new JsonValue($input.val());
+            $input.after(jsonValue.render());
+            utilities.updated($input.next('.json-value-composite'));
+        };        
         var $input = $(this);
-        $input.attr('readonly', 'readonly');
-        var jsonValue = new JsonValue($input.val());
-        $input.after( jsonValue.render());
-        utilities.updated($input.next('.json-value-composite'));
+        if (default_parameters.hide_original_input) $input.addClass('hidden');
+        if (default_parameters.lock_original_input) {
+            $input.attr('readonly', 'readonly');
+        } else {
+            $input.on('focusout', function() {bind_input($input);});
+        }        
+        bind_input($input);
         $input.parents('form').submit(function() {          
            var $scope = $input.next('.json-value-composite');
-           $input.val(JSON.stringify(utilities.eval_composite($scope))) ;
-           return false;
+           $input.val(JSON.stringify(utilities.eval_composite($scope))) ;         
+           return default_parameters.cancel_form_submit?false:true;          
         });
     };      
 })(jQuery);
