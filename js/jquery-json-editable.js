@@ -63,9 +63,11 @@
         },
         render_ARRAY : function(values) {           
             var template =
-                    '<div class="row json-value-row" data-mode="ARRAY">' +             
-                    '<div class="col-xs-12 json-array-value json-value-composite">:CONTENT</div>' +
-                    '</div>';                                                          
+                    '<tr class="json-value-row" data-mode="ARRAY">' +
+                    '<td>:CONTENT_DEL</td>' +
+                    '<td class="json-array-value json-switch">:CONTENT</td>' +
+                    '</tr>';
+            template = template.replace(/:CONTENT_DEL/, this.button_del.render());
             if ($.isArray(values)) {
                 var outputHtml = '';
                 for (var i=0; i < values.length; i++) {
@@ -74,22 +76,25 @@
                 }
 
                 outputHtml += this.button_add.render('ARRAY');                   
-                return this.render_json_delimiter('ARRAY', 'left') +
+                return '<table class="json-value-composite">' +
+                       this.render_json_delimiter('ARRAY', 'left') +
                        outputHtml +
-                       this.render_json_delimiter('ARRAY', 'right');
+                       this.render_json_delimiter('ARRAY', 'right') +
+                       '</table>';
             } else {
-                var value = this.empty_value('SCALAR')
-                            .options({deletable: true})
+                var value = this.empty_value('SCALAR')                         
                             .parameters({'tag_scalar': default_parameters.tag_array_value });
                 return template.replace(/:CONTENT/, this.render_SCALAR(value));
             }
         },
         render_HASH : function(values) {
             var template =
-                    '<div class="row json-value-row" data-mode="HASH">' +                   
-                    '<div class="col-xs-5 json-hash-key">:CONTENT_KEY</div>' +
-                    '<div class="col-xs-7 json-hash-value json-value-composite">:CONTENT_VAL</div>' +
-                    '</div>';
+                    '<tr class="json-value-row" data-mode="HASH">' +
+                    '<td>:CONTENT_DEL</td>' +
+                    '<td class="json-hash-key">:CONTENT_KEY</td>' +
+                    '<td class="json-hash-value json-switch">:CONTENT_VAL</td>' +
+                    '</tr>';
+            template = template.replace(/:CONTENT_DEL/, this.button_del.render());            
             if ($.isPlainObject(values)) {
                 var outputHtml = '';
                 for (var k in values) {
@@ -99,16 +104,17 @@
                                   .replace(/:CONTENT_VAL/, v.parameters({tag_scalar: default_parameters.tag_hash_value}).render());
                 }
                 outputHtml += this.button_add.render('HASH');                    
-                return this.render_json_delimiter('HASH', 'left') +
+                return '<table class="json-value-composite">' +
+                       this.render_json_delimiter('HASH', 'left') +
                        outputHtml +
-                       this.render_json_delimiter('HASH', 'right');
+                       this.render_json_delimiter('HASH', 'right') +
+                       '</table>';
             } else {
                 var k = this.empty_value('SCALAR')
-                        .options({composite: false, deletable: true})
+                        .options({composite: false})
                         .parameters({tag_scalar: default_parameters.tag_hash_key});  
                 k.parameters({tag_scalar: default_parameters.tag_hash_key});
                 var v = this.empty_value('SCALAR')
-                        .options({deletable: false})
                         .parameters({tag_scalar: default_parameters.tag_hash_value});
                 return template
                        .replace(/:CONTENT_KEY/, this.render_SCALAR(k))
@@ -122,48 +128,32 @@
                 parameters = value.parameters(parameters).parameters();
                 value = value.decoded;
             } else {
-                options = {composite: false, deletable: true};
+                options = {composite: false};
             }
-            var template;
-            if (options.composite) {
-             
-                template =
-                  '<div class="col-xs-12 input-group">' + 
-                  (options['deletable']?this.button_del.render():'') +
-                  this.button_switch.render('SCALAR', parameters.tag_scalar) +
-                  '<input type="text" class="form-control" value=":CONTENT">' +                    
-                  '</div>';
-            } else {
-                template = 
-                  '<div class="col-xs-12 input-group">' +
-                  (options['deletable']?this.button_del.render():'') + 
-                  '<span class="input-group-addon">' + parameters.tag_scalar + '</span>' +    
-                  '<input type="text" class="form-control" value=":CONTENT">' + 
-                  '</div>';
-            }            
-            return template.replace(/:CONTENT/, value);
+            var template = '<input type="text" value=":CONTENT_VAL" placeholder=":CONTENT_PH">' +
+              (options.composite?this.button_switch.render('SCALAR'):'');                
+            return template.replace(/:CONTENT_VAL/, value).replace(/:CONTENT_PH/, parameters.tag_scalar);
         },
         render_json_delimiter : function(mode, position) {
+            var colspan = (mode === 'ARRAY')?1:(mode=== 'HASH'?2:1);
+            var template = '<tr class="json-delimiter-row">' +
+                           '<td class="json-delimiter-value json-switch" data-mode="' + mode + '">:CONTENT</td>' +
+                           '<td colspan="' + colspan +'"></td>' +
+                           '</tr>';
+
             var symbol;
             if (position === 'right') {
-                symbol = (mode === 'ARRAY')?']':(mode=== 'HASH'?'}':'');
-                return '<div class="json-delimiter" data-mode="' + mode + '"><span>'+ symbol +'</span></div>';
+                symbol = (mode === 'ARRAY')?']':(mode=== 'HASH'?'}':'');               
             } else {
                 symbol = (mode === 'ARRAY')?'[':(mode=== 'HASH'?'{':'');
-                return this.button_switch.render(mode, symbol, {btn_class: 'json-delimiter' } );
-            }            
+            }
+            var content = '<div>' + symbol + '</div>' + (position === 'left'?this.button_switch.render(mode):'');
+            return template.replace(/:CONTENT/, content);
         },
         button_switch: {
-            render: function(mode, content, options) {
-                options = typeof options !== 'undefined'? options : {};
-                var template =
-                  '<div class="input-group-btn '+ (options.hasOwnProperty('btn_class')?options['btn_class']:'' ) +'" data-mode="' + mode +'">' +
-                  '<span class="btn btn-default dropdown-toggle record-switch" data-toggle="dropdown">' +
-                  ':CONTENT' + 
-                  '<span class="caret"></span></span>' +
-                  '<ul class="dropdown-menu" role="menu">' +
-                  ':DROPDOWN' +
-                  '</ul></div>';
+            render: function(mode) {
+                var template = '<div class="json-switch-triangle"></div>' +
+                               '<ul class="json-switch-dropdown">:DROPDOWN</ul>'
                 
                 var dropdown;
                 if (mode === 'ARRAY') {
@@ -173,24 +163,21 @@
                 } else {
                     dropdown = '<li><a href="#" data-mode="ARRAY">[...]</a></li>' + '<li><a href="#" data-mode="HASH">{...}</a></li>';
                 }
-                return template.replace(/:CONTENT/, content).replace(/:DROPDOWN/, dropdown);              
+                return template.replace(/:DROPDOWN/, dropdown);              
             },
             after_render: function($scope, $target, utilities) {
-                $target.next('.dropdown-menu').find('a').off('click.record-switch');
-                $target.next('.dropdown-menu').find('a').on('click.record-switch', function() {   
+                $target.children('.json-switch-dropdown').find('a').off('click.record-switch');
+                $target.children('.json-switch-dropdown').find('a').on('click.record-switch', function() {   
                     var mode = $(this).data('mode');
                     var $composite = $target.closest('.json-value-composite');
                     var value = utilities.empty_value(mode);
                                                             
                     if ($composite.hasClass('json-array-value')) {
-                        value.parameters({tag_scalar: default_parameters.tag_array_value})
-                             .options({deletable: true});                        
+                        value.parameters({tag_scalar: default_parameters.tag_array_value});
                     }
                     else if ($composite.hasClass('json-hash-value')) {
-                        value.parameters({tag_scalar: default_parameters.tag_hash_value})
-                             .options({deletable: false});                                                
-                    } 
-                    
+                        value.parameters({tag_scalar: default_parameters.tag_hash_value});
+                    }                     
                     $composite.html(value.render()); 
                     utilities.updated($scope);
                 });
@@ -198,7 +185,7 @@
         },        
         button_del: {
             render: function() {
-                return '<span class="input-group-addon btn record-del glyphicon glyphicon-minus-sign invisible"></span>';
+                return '<button type="button" class="record-del">&#9747;</button>';
             },
             after_render: function($scope, $target) { 
                 $target.off('click.record-del');
@@ -209,11 +196,13 @@
         },
         button_add: {
             render: function(mode) {
+                var colspan = (mode === 'ARRAY')?1:(mode=== 'HASH'?2:1);
                 var text = mode.toLowerCase();
-                return  '<div class="row json-value-row-ctl">' +
-                        '<div class="col-xs-10"><button type="button" class="btn record-add" data-mode="' + mode + '">Add to '+
-                        text +'</button></div>' +
-                        '</div>';
+                return  '<tr class="json-value-row-ctl">' +
+                        '<td></td>' +
+                        '<td colspan=' + colspan + '><button type="button" class="record-add" data-mode="' + mode +
+                        '">Add to '+ text +'</button></td>' +
+                        '</tr>';
             },
             after_render: function($scope, $target, mode, utilities) {
                 var contentHtml = utilities['render_' + mode](null);
@@ -225,13 +214,13 @@
             }    
         },      
         updated: function($scope) {                    
-            $scope.find('.btn.record-add').each(function() {
+            $scope.find('.record-add').each(function() {
                 utilities.button_add.after_render($scope, $(this), $(this).data('mode'), utilities);
             });
-            $scope.find('.btn.record-del').each(function() {
+            $scope.find('.record-del').each(function() {
                 utilities.button_del.after_render($scope, $(this)); 
             });
-            $scope.find('.btn.record-switch').each(function() {             
+            $scope.find('.json-switch').each(function() {             
                 utilities.button_switch.after_render($scope, $(this), utilities); 
             });                   
         },
@@ -270,7 +259,7 @@
         var $input = $(this);
         $input.attr('readonly', 'readonly');
         var jsonValue = new JsonValue($input.val());
-        $input.after('<div class="json-value-composite">' +jsonValue.render() +'</div>');
+        $input.after( jsonValue.render());
         utilities.updated($input.next('.json-value-composite'));
         $input.parents('form').submit(function() {          
            var $scope = $input.next('.json-value-composite');
