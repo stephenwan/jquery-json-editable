@@ -39,7 +39,7 @@ $('input[name="configDataJson"']).editableJsonInput();
 
 ## Demo
 
-* [jsfiddle](http://jsfiddle.net/7m0x29m3/3/)
+* [jsfiddle](http://jsfiddle.net/7m0x29m3/15/)
 
 
 ## Configuration
