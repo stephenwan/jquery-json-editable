@@ -1,11 +1,11 @@
-# jQuery JSON-input editor Plugin
+# jQuery Plugin for JSON Value Input 
 
-This is a not so light-weight jQuery plugin that enables html-form-based editing of JSON values. 
-The plugin transforms a text input field that contains a JSON string into a group of
-editable text input fields which simulate the original JSON value structure. 
+This is a light-weight jQuery plugin to facilitate editing JSON values inside HTML forms. 
+When applied to a text input field with JSON value, it will destructure the JSON and spawn a collection of
+extra input fields as JSON leaf-nodes to contain the strings, through which the JSON value in the original field can be modified. These input fields with their affiliated control buttons provide an easy and complete way for editing the JSON value inside HTML forms.
 
-For a simpler implementation that is capable of editing key-value-like JSON value with no nesting, 
-please refer to [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input) instead.
+For a simpler implementation that is capable of editing key-value-like JSON value without nesting, 
+please use [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input) instead.
 
 
 ## Usage
@@ -23,7 +23,7 @@ Link the css file, which is necessary to style the input fields and related cont
 <link rel="stylesheet" type="text/css" href="/path/to/jquery-json-editable.css">
 ```
 
-Finally enable json-edit for a normal text input field
+Now we can switch on json-editor for any text input field that is expected to contain JSON value
 
 ``` javascript
 $('input[name="configDataJson"']).editableJsonInput();
@@ -32,6 +32,17 @@ $('input[name="configDataJson"']).editableJsonInput();
 ## Demo
 
 * [jsfiddle](http://jsfiddle.net/7m0x29m3/16/)
+
+
+
+## Instructions
+
+* Editing the JSON value will cause the editor to refresh itself automatically.
+* Edit values in the editor and submit the form to have the JSON value updated inside the target input box.
+* Inside the editor, mouseover a row and use the `x` button to remove it.
+* Inside the editor, mouseover the green-triangle and use the panel buttons to switch among SCALAR, ARRAY, and HASH values.
+* Inside the editor, use the `Add to ...` button to insert a new row.
+* The JSON value in the target input field needs to be valid, otherwise the editor will not be rendered.
 
 
 ## Configuration
