@@ -286,7 +286,7 @@
         if (default_parameters.lock_original_input) {
             $input.attr('readonly', 'readonly');
         } else {
-            $input.on('focusout', function() {bind_input($input);});
+            $input.on('change', function() {bind_input($input);});
         }        
         bind_input($input);
         $input.parents('form').submit(function() {          
