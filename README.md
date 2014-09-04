@@ -13,28 +13,20 @@ please refer to [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-js
 Include the js file after the jQuery library
 
 ``` html
-
 <script src="/path/to/jquery-json-editable.js"></script>
-
-
 ```
 
 Link the css file, which is necessary to style the input fields and related controls
 
 
 ``` html
-
 <link rel="stylesheet" type="text/css" href="/path/to/jquery-json-editable.css">
-
-
 ```
 
 Finally enable json-edit for a normal text input field
 
 ``` javascript
-
 $('input[name="configDataJson"']).editableJsonInput();
-
 ```
 
 ## Demo
