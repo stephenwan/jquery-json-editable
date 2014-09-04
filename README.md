@@ -1,8 +1,8 @@
 # jQuery Plugin for JSON Value Input 
 
-This is a light-weight jQuery plugin to facilitate editing JSON values inside HTML forms. 
-When applied to a text input field with JSON value, it will destructure the JSON and spawn a collection of
-extra input fields as JSON leaf-nodes to contain the strings, through which the JSON value in the original field can be modified. These input fields with their affiliated control buttons provide an easy and complete way for editing the JSON value inside HTML forms.
+This is a light-weight jQuery plugin to facilitate editing JSON values inside HTML forms.
+
+When applied to a text input field with JSON value, it will destructure the JSON and dynamically spawn a collection of input boxes as the leaf-nodes containing strings to represent the JSON value. These fields together with a set of affiliated control buttons provide an easy and complete way for editing the JSON value inside HTML forms.
 
 For a simpler implementation that is capable of editing key-value-like JSON value without nesting, 
 please use [jquery-kv-json-input](https://github.com/whuhacker/jquery-kv-json-input) instead.
